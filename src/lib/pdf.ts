@@ -1,0 +1,207 @@
+import { jsPDF } from 'jspdf'
+import QRCode from 'qrcode'
+import type { Invitation } from '../types'
+
+const COLORS = {
+  navy: '#09245D',
+  deepNavy: '#03122F',
+  blue: '#087AE8',
+  cyan: '#00C8E7',
+  ink: '#14213D',
+  muted: '#53627A',
+  paper: '#F4F8FC',
+  line: '#DCE8F5',
+}
+
+let headerPromise: Promise<string> | undefined
+let logoPromise: Promise<string> | undefined
+
+function loadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error(`No se pudo cargar ${url}`))
+    image.src = url
+  })
+}
+
+async function cropHeader(): Promise<string> {
+  if (!headerPromise) {
+    headerPromise = (async () => {
+      const image = await loadImage('/assets/indice.png')
+      const canvas = document.createElement('canvas')
+      const cropHeight = Math.round(image.width * (73 / 210))
+      canvas.width = image.width
+      canvas.height = cropHeight
+      canvas.getContext('2d')!.drawImage(image, 0, 0, image.width, cropHeight, 0, 0, image.width, cropHeight)
+      return canvas.toDataURL('image/jpeg', 0.9)
+    })()
+  }
+  return headerPromise
+}
+
+async function assetData(url: string): Promise<string> {
+  if (!logoPromise) {
+    logoPromise = (async () => {
+      const response = await fetch(url)
+      const blob = await response.blob()
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result))
+        reader.readAsDataURL(blob)
+      })
+    })()
+  }
+  return logoPromise
+}
+
+function safeName(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+export function pdfFilename(invitation: Invitation): string {
+  return `Invitacion-SCD-${safeName(invitation.institution || invitation.recipient || 'Bolivia-2026')}.pdf`
+}
+
+export async function createInvitationPdf(invitation: Invitation): Promise<Blob> {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true })
+  const [header, logo, qr] = await Promise.all([
+    cropHeader(),
+    assetData('/assets/logo-white.png'),
+    QRCode.toDataURL('https://luma.com/r65j1ukn', { margin: 0, width: 512, errorCorrectionLevel: 'M' }),
+  ])
+
+  doc.setFillColor(COLORS.paper)
+  doc.rect(0, 0, 210, 297, 'F')
+  doc.setDrawColor(COLORS.line)
+  doc.setLineWidth(0.05)
+  for (let x = 0; x <= 210; x += 10) doc.line(x, 73, x, 277)
+  for (let y = 73; y <= 277; y += 10) doc.line(0, y, 210, y)
+
+  doc.addImage(header, 'JPEG', 0, 0, 210, 73)
+  doc.setFillColor(COLORS.deepNavy)
+  doc.setGState(doc.GState({ opacity: 0.8 }))
+  doc.rect(0, 57, 210, 16, 'F')
+  doc.setGState(doc.GState({ opacity: 1 }))
+  doc.addImage(logo, 'PNG', 13, 10, 24, 24)
+  doc.setTextColor('#FFFFFF')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.text('AWS STUDENT BUILDER GROUP', 197, 13, { align: 'right' })
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(7)
+  doc.text('UPB COCHABAMBA', 197, 18, { align: 'right' })
+  doc.setDrawColor(COLORS.cyan)
+  doc.setLineWidth(0.45)
+  doc.line(149, 23, 197, 23)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(8)
+  doc.text(invitation.recipient ? 'I N V I T A C I Ó N   P E R S O N A L I Z A D A' : 'I N V I T A C I Ó N   I N S T I T U C I O N A L', 13, 67)
+
+  doc.setTextColor(COLORS.blue)
+  doc.setFontSize(7.5)
+  doc.text(invitation.recipient ? 'INVITACIÓN PERSONALIZADA' : 'INVITACIÓN DIRIGIDA A', 18, 87)
+  doc.setTextColor(COLORS.ink)
+  doc.setFontSize(15)
+  doc.text(invitation.recipient || invitation.institution, 18, 97, { maxWidth: 174 })
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(COLORS.muted)
+  doc.setFontSize(9)
+  const subtitle = invitation.recipient
+    ? [invitation.role, invitation.institution].filter(Boolean).join(' · ')
+    : 'A quien corresponda'
+  doc.text(subtitle, 18, 106, { maxWidth: 174 })
+  doc.setDrawColor(COLORS.blue)
+  doc.setLineWidth(0.3)
+  doc.line(18, 112, 52, 112)
+
+  doc.setTextColor(COLORS.ink)
+  doc.setFontSize(10)
+  doc.text(invitation.greeting, 18, 123)
+  const paragraphOne = 'El AWS Student Builder Group UPB Cbba tiene el agrado de invitarle al AWS Student Community Day (SCD) Bolivia 2026, una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.'
+  const paragraphTwo = 'Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. Nos encantaría contar con la participación de su institución.'
+  doc.setFontSize(9.5)
+  doc.text(doc.splitTextToSize(paragraphOne, 174), 18, 132, { lineHeightFactor: 1.35 })
+  doc.text(doc.splitTextToSize(paragraphTwo, 174), 18, 150, { lineHeightFactor: 1.35 })
+
+  doc.setFillColor('#FFFFFF')
+  doc.setDrawColor(COLORS.line)
+  doc.roundedRect(18, 179, 174, 41, 2, 2, 'FD')
+  doc.setFillColor(COLORS.blue)
+  doc.roundedRect(18, 179, 4, 41, 2, 2, 'F')
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(COLORS.ink)
+  doc.setFontSize(8)
+  doc.text('SÁBADO', 29, 191)
+  doc.setTextColor(COLORS.navy)
+  doc.setFontSize(19)
+  doc.text('10 OCT', 29, 202)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(COLORS.muted)
+  doc.setFontSize(8)
+  doc.text('2026', 29, 213)
+  doc.setDrawColor(COLORS.line)
+  doc.line(70, 185, 70, 213)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(COLORS.blue)
+  doc.setFontSize(7)
+  doc.text('HORARIO', 79, 190)
+  doc.setTextColor(COLORS.ink)
+  doc.setFontSize(11)
+  doc.text('09:00 – 17:30', 79, 199)
+  doc.setTextColor(COLORS.blue)
+  doc.setFontSize(7)
+  doc.text('LUGAR', 79, 207)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(COLORS.ink)
+  doc.setFontSize(7.5)
+  doc.text(['UPB Cochabamba', 'Campus Julio León Prado'], 79, 213, { lineHeightFactor: 1.15 })
+  doc.addImage(qr, 'PNG', 162, 185, 25, 25)
+  doc.setTextColor(COLORS.muted)
+  doc.setFontSize(5.5)
+  doc.text('ESCANEA PARA REGISTRARTE', 174.5, 215, { align: 'center' })
+
+  doc.setTextColor(COLORS.ink)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.text('Agradecemos su atención y esperamos darle la bienvenida en esta jornada.', 18, 234)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Atentamente,', 18, 244)
+  doc.text('AWS Student Builder Group UPB Cbba', 18, 252)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(COLORS.muted)
+  doc.text('Comité organizador', 18, 257)
+  doc.setTextColor(COLORS.blue)
+  doc.textWithLink('sbgcbba@upb.edu', 18, 263, { url: 'mailto:sbgcbba@upb.edu' })
+
+  doc.setFillColor(COLORS.navy)
+  doc.roundedRect(143, 227, 49, 31, 1.5, 1.5, 'F')
+  doc.setTextColor(COLORS.cyan)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(6.5)
+  doc.text('INSCRIPCIONES ABIERTAS', 167.5, 237, { align: 'center' })
+  doc.setTextColor('#FFFFFF')
+  doc.setFontSize(8.5)
+  doc.textWithLink('luma.com/r65j1ukn', 167.5, 247, { url: 'https://luma.com/r65j1ukn', align: 'center' })
+
+  doc.setFillColor(COLORS.cyan)
+  doc.rect(0, 275.5, 210, 1.5, 'F')
+  doc.setFillColor(COLORS.navy)
+  doc.rect(0, 277, 210, 20, 'F')
+  doc.setTextColor('#FFFFFF')
+  doc.setFontSize(7)
+  doc.text('10 DE OCTUBRE DE 2026   •   COCHABAMBA', 18, 288)
+  doc.setFont('helvetica', 'bold')
+  doc.text('STUDENT COMMUNITY DAY', 192, 288, { align: 'right' })
+
+  return doc.output('blob')
+}
+
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
