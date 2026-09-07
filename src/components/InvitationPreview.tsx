@@ -52,7 +52,7 @@ export function InvitationPreview({ invitation }: { invitation: Invitation }) {
           </div>
         </section>
         <section className="paper-closing">
-          <div><p>Agradecemos su atención y esperamos darle la bienvenida en esta jornada.</p><strong>Atentamente,</strong><b>AWS Student Builder Group UPB Cbba</b><span>Comité organizador</span><a href="mailto:sbgcbba@upb.edu">sbgcbba@upb.edu</a></div>
+          <div><p>Agradecemos su atención y esperamos sea parte de esta iniciativa.</p><strong>Atentamente,</strong><b>AWS Student Builder Group UPB Cbba</b><span>Comité organizador</span><a href="mailto:sbgcbba@upb.edu">sbgcbba@upb.edu</a></div>
           <a className="registration-card" href="https://bolivia.studentcommunity.day/" target="_blank" rel="noreferrer"><small>PARA MÁS INFORMACIÓN</small><strong>bolivia.studentcommunity.day</strong></a>
         </section>
       </div>

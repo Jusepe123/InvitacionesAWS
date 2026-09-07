@@ -229,7 +229,7 @@ export async function createInvitationPdf(invitation: Invitation): Promise<Blob>
   doc.setTextColor(COLORS.ink)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
-  doc.text('Agradecemos su atención y esperamos darle la bienvenida en esta jornada.', 18, 234)
+  doc.text('Agradecemos su atención y esperamos sea parte de esta iniciativa.', 18, 234)
   doc.setFont('helvetica', 'bold')
   doc.text('Atentamente,', 18, 244)
   doc.text('AWS Student Builder Group UPB Cbba', 18, 252)
