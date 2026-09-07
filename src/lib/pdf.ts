@@ -59,6 +59,61 @@ function safeName(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function richTextRuns(text: string, boldPhrases: string[]): Array<{ text: string; bold: boolean }> {
+  const pattern = new RegExp(`(${boldPhrases.map(escapeRegExp).join('|')})`, 'g')
+  return text.split(pattern).filter(Boolean).map((part) => ({
+    text: part,
+    bold: boldPhrases.includes(part),
+  }))
+}
+
+function drawRichText(
+  doc: jsPDF,
+  text: string,
+  boldPhrases: string[],
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+): number {
+  let cursorX = x
+  let cursorY = y
+  let hasSpace = false
+
+  for (const run of richTextRuns(text, boldPhrases)) {
+    doc.setFont('helvetica', run.bold ? 'bold' : 'normal')
+    for (const token of run.text.match(/\S+|\s+/g) ?? []) {
+      if (/\s/.test(token)) {
+        if (token.includes('\n')) {
+          cursorX = x
+          cursorY += lineHeight
+          hasSpace = false
+        } else {
+          hasSpace = cursorX !== x
+        }
+        continue
+      }
+
+      const prefix = hasSpace && cursorX !== x ? ' ' : ''
+      const segment = `${prefix}${token}`
+      if (cursorX !== x && cursorX + doc.getTextWidth(segment) > x + maxWidth) {
+        cursorX = x
+        cursorY += lineHeight
+      }
+      const rendered = cursorX === x ? token : segment
+      doc.text(rendered, cursorX, cursorY)
+      cursorX += doc.getTextWidth(rendered)
+      hasSpace = true
+    }
+  }
+
+  return cursorY + lineHeight
+}
+
 export function pdfFilename(invitation: Invitation): string {
   return `Invitacion-SCD-${safeName(invitation.recipient || invitation.institution || 'Bolivia-2026')}.pdf`
 }
@@ -125,8 +180,12 @@ export async function createInvitationPdf(invitation: Invitation): Promise<Blob>
     : 'Nos encantaría contar con la participación de su institución.'
   const paragraphTwo = `Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. ${participationClosing}`
   doc.setFontSize(9.5)
-  doc.text(doc.splitTextToSize(paragraphOne, 174), 18, 128, { lineHeightFactor: 1.35 })
-  doc.text(doc.splitTextToSize(paragraphTwo, 174), 18, 146, { lineHeightFactor: 1.35 })
+  const lineHeight = 4.5
+  const firstParagraphEnd = drawRichText(doc, paragraphOne, [
+    'AWS Student Builder Group UPB Cbba',
+    'AWS Student Community Day (SCD) Bolivia 2026',
+  ], 18, 128, 174, lineHeight)
+  drawRichText(doc, paragraphTwo, [], 18, Math.max(146, firstParagraphEnd), 174, lineHeight)
 
   doc.setFillColor('#FFFFFF')
   doc.setDrawColor(COLORS.line)
