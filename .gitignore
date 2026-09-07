@@ -9,3 +9,9 @@ dist/
 *.fls
 *.fdb_latexmk
 logo-white-transparent*.png
+
+/Audit-*
+/latex-build-*
+/Invitacion-SCD-*.pdf
+/invitation-template.pdf
+/preview-*.png

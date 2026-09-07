@@ -3,14 +3,14 @@ import QRCode from 'qrcode'
 import type { Invitation } from '../types'
 
 const COLORS = {
-  navy: '#09245D',
-  deepNavy: '#03122F',
-  blue: '#087AE8',
-  cyan: '#00C8E7',
-  ink: '#14213D',
-  muted: '#53627A',
-  paper: '#F4F8FC',
-  line: '#DCE8F5',
+  navy: '#002653',
+  deepNavy: '#000B21',
+  blue: '#021A46',
+  cyan: '#00E7FB',
+  ink: '#000B21',
+  muted: '#002653',
+  paper: '#FFFFFF',
+  line: '#C6E6EB',
 }
 
 let headerPromise: Promise<string> | undefined
@@ -65,6 +65,12 @@ export function pdfFilename(invitation: Invitation): string {
 
 export async function createInvitationPdf(invitation: Invitation): Promise<Blob> {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true })
+  doc.setProperties({
+    title: 'Invitación AWS Student Community Day Bolivia 2026',
+    subject: 'Invitación institucional al SCD Bolivia 2026',
+    author: 'AWS Student Builder Group UPB Cbba',
+    creator: 'Generador de invitaciones SCD Bolivia 2026',
+  })
   const [header, logo, qr] = await Promise.all([
     cropHeader(),
     assetData('/assets/logo-white.png'),
@@ -83,7 +89,7 @@ export async function createInvitationPdf(invitation: Invitation): Promise<Blob>
   doc.setGState(doc.GState({ opacity: 0.8 }))
   doc.rect(0, 57, 210, 16, 'F')
   doc.setGState(doc.GState({ opacity: 1 }))
-  doc.addImage(logo, 'PNG', 13, 10, 24, 24)
+  doc.addImage(logo, 'PNG', 13, 8, 24, 24)
   doc.setTextColor('#FFFFFF')
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(8)
@@ -179,10 +185,10 @@ export async function createInvitationPdf(invitation: Invitation): Promise<Blob>
   doc.setTextColor(COLORS.cyan)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(6.5)
-  doc.text('INSCRIPCIONES ABIERTAS', 167.5, 237, { align: 'center' })
+  doc.text('PARA MÁS INFORMACIÓN', 167.5, 237, { align: 'center' })
   doc.setTextColor('#FFFFFF')
-  doc.setFontSize(8.5)
-  doc.textWithLink('luma.com/r65j1ukn', 167.5, 247, { url: 'https://luma.com/r65j1ukn', align: 'center' })
+  doc.setFontSize(6.5)
+  doc.textWithLink('bolivia.studentcommunity.day', 167.5, 247, { url: 'https://bolivia.studentcommunity.day/', align: 'center' })
 
   doc.setFillColor(COLORS.cyan)
   doc.rect(0, 275.5, 210, 1.5, 'F')

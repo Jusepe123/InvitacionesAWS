@@ -1,10 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
-import JSZip from 'jszip'
 import { InvitationPreview } from './components/InvitationPreview'
-import { downloadExcelTemplate, parseWorkbook } from './lib/excel'
-import { addToHistory, clearHistory, loadHistory } from './lib/history'
+import { addManyToHistory, addToHistory, clearHistory, loadHistory } from './lib/history'
 import { fromMarkdown, normalizeInvitation, toMarkdown } from './lib/markdown'
-import { createInvitationPdf, downloadBlob, pdfFilename } from './lib/pdf'
 import { EMPTY_INVITATION, type HistoryEntry, type Invitation } from './types'
 
 type Notice = { kind: 'success' | 'error'; message: string } | null
@@ -30,6 +27,7 @@ export default function App() {
   async function generate(invitationToUse = invitation, saveHistory = true) {
     const normalized = normalizeInvitation(invitationToUse)
     if (!normalized.institution) throw new Error('Debes indicar el nombre de la institución.')
+    const { createInvitationPdf, downloadBlob, pdfFilename } = await import('./lib/pdf')
     const blob = await createInvitationPdf(normalized)
     downloadBlob(blob, pdfFilename(normalized))
     if (saveHistory) setHistory(addToHistory(normalized))
@@ -64,13 +62,23 @@ export default function App() {
     setBusy(true)
     setNotice(null)
     try {
+      const [{ default: JSZip }, { parseWorkbook }, { createInvitationPdf, downloadBlob, pdfFilename }] =
+        await Promise.all([import('jszip'), import('./lib/excel'), import('./lib/pdf')])
       const invitations = await parseWorkbook(file)
       const zip = new JSZip()
+      const filenameCounts = new Map<string, number>()
       for (const item of invitations) {
         const pdf = await createInvitationPdf(item)
-        zip.file(pdfFilename(item), pdf)
-        setHistory(addToHistory(item))
+        const baseFilename = pdfFilename(item)
+        const duplicateCount = filenameCounts.get(baseFilename) ?? 0
+        filenameCounts.set(baseFilename, duplicateCount + 1)
+        const filename = duplicateCount === 0
+          ? baseFilename
+          : baseFilename.replace(/\.pdf$/, '-' + (duplicateCount + 1) + '.pdf')
+        zip.file(filename, pdf)
+
       }
+      setHistory(addManyToHistory(invitations))
       downloadBlob(await zip.generateAsync({ type: 'blob' }), `invitaciones-scd-${invitations.length}.zip`)
       setNotice({ kind: 'success', message: `${invitations.length} invitación(es) generadas en un ZIP.` })
       if (excelInput.current) excelInput.current.value = ''
@@ -81,6 +89,15 @@ export default function App() {
     }
   }
 
+  async function handleDownloadExcelTemplate() {
+    setNotice(null)
+    try {
+      const { downloadExcelTemplate } = await import('./lib/excel')
+      await downloadExcelTemplate()
+    } catch {
+      setNotice({ kind: 'error', message: 'No se pudo descargar la plantilla de Excel.' })
+    }
+  }
   function restore(entry: HistoryEntry) {
     const next: Invitation = { institution: entry.institution, recipient: entry.recipient, role: entry.role, greeting: entry.greeting }
     setInvitation(next)
@@ -115,7 +132,7 @@ export default function App() {
 
           {tab === 'markdown' && <div className="markdown-panel"><p>Pega un archivo con metadatos YAML. El texto del evento permanece protegido por la plantilla.</p><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} spellCheck={false} /><button className="secondary" onClick={applyMarkdown}>Aplicar Markdown</button></div>}
 
-          {tab === 'excel' && <div className="excel-panel"><div className="drop-zone" onClick={() => excelInput.current?.click()}><strong>Importar invitaciones desde Excel</strong><span>Columnas: institucion, destinatario, cargo y saludo</span><button className="secondary" type="button">Seleccionar .xlsx</button><input ref={excelInput} type="file" accept=".xlsx,.xls" onChange={(event) => void handleExcel(event.target.files?.[0])} hidden /></div><button className="link-button" onClick={downloadExcelTemplate}>↓ Descargar plantilla de Excel</button></div>}
+          {tab === 'excel' && <div className="excel-panel"><div className="drop-zone" onClick={() => excelInput.current?.click()}><strong>Importar invitaciones desde Excel</strong><span>Columnas: institucion, destinatario, cargo y saludo</span><button className="secondary" type="button">Seleccionar .xlsx</button><input ref={excelInput} type="file" accept=".xlsx" onChange={(event) => void handleExcel(event.target.files?.[0])} hidden /></div><button className="link-button" onClick={() => void handleDownloadExcelTemplate()}>↓ Descargar plantilla de Excel</button></div>}
 
           {notice && <div className={`notice ${notice.kind}`}>{notice.message}</div>}
           <button className="primary" disabled={busy} onClick={() => void handleGenerate()}>{busy ? 'Generando…' : 'Generar PDF'} <span>→</span></button>
