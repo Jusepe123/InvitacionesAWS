@@ -1,0 +1,5 @@
+[0] Config.pm:328> INFO - This is Biber 2.21
+[0] Config.pm:331> INFO - Logfile is 'invitation-template.blg'
+[100] biber-MSWIN64:342> INFO - === 
+[530] Utils.pm:479> ERROR - Cannot find 'invitation-template.bcf'!
+[530] Biber.pm:137> INFO - ERRORS: 1
