@@ -119,7 +119,7 @@ export async function createInvitationPdf(invitation: Invitation): Promise<Blob>
   doc.setTextColor(COLORS.ink)
   doc.setFontSize(10)
   doc.text(invitation.greeting, 18, 119)
-  const paragraphOne = 'El AWS Student Builder Group UPB Cbba tiene el agrado de invitarle al AWS Student Community Day (SCD) Bolivia 2026, una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.'
+  const paragraphOne = 'El AWS Student Builder Group UPB Cbba tiene el agrado de invitarle al AWS Student Community Day (SCD) Bolivia 2026, el primer evento internacional de la comunidad estudiantil de Amazon en Bolivia, será una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.'
   const participationClosing = personalized
     ? 'Nos encantaría contar con su participación.'
     : 'Nos encantaría contar con la participación de su institución.'
