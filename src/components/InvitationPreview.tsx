@@ -40,7 +40,7 @@ export function InvitationPreview({ invitation }: { invitation: Invitation }) {
         </section>
         <section className="paper-copy">
           <p>{invitation.greeting}</p>
-          <p>El <strong>AWS Student Builder Group UPB Cbba</strong> tiene el agrado de invitarle al <strong>AWS Student Community Day (SCD) Bolivia 2026</strong>, una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.</p>
+          <p>El <strong>AWS Student Builder Group UPB Cbba</strong> tiene el agrado de invitarle al <strong>AWS Student Community Day (SCD) Bolivia 2026</strong>, el primer evento internacional de la comunidad estudiantil de Amazon en Bolivia, será una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.</p>
           <p>Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. {participationClosing}</p>
         </section>
         <section className="event-card">
