@@ -64,6 +64,8 @@ function escapeRegExp(value: string): string {
 }
 
 function richTextRuns(text: string, boldPhrases: string[]): Array<{ text: string; bold: boolean }> {
+  if (boldPhrases.length === 0) return [{ text, bold: false }]
+
   const pattern = new RegExp(`(${boldPhrases.map(escapeRegExp).join('|')})`, 'g')
   return text.split(pattern).filter(Boolean).map((part) => ({
     text: part,
