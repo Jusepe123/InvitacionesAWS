@@ -16,9 +16,11 @@ npm run check
 
 ## Entradas admitidas
 
-- Formulario: institución y, opcionalmente, destinatario y cargo.
+- Formulario: institución o destinatario; para invitaciones personales la institución y el cargo son opcionales.
 - Markdown: metadatos `institucion`, `destinatario`, `cargo` y `saludo`.
 - Excel: archivo `.xlsx` de hasta 5 MB y 100 filas. La aplicación ofrece una plantilla descargable con las columnas correctas.
+
+Una invitación se considera personal cuando incluye destinatario, aunque no tenga institución. Si no incluye destinatario, debe indicar una institución.
 
 La carga masiva descarga un ZIP con un PDF por invitación. El historial se guarda únicamente en `localStorage` del dispositivo.
 

@@ -23,6 +23,7 @@ h2 { margin: 6px 0 0; color: #000b21; font-size: 22px; }
 .tabs button { border: 0; border-radius: 7px; padding: 9px 5px; color: #66758b; background: transparent; cursor: pointer; font-size: 12px; }
 .tabs button.active { color: #021a46; background: white; box-shadow: 0 2px 8px rgba(0,38,83,.12); font-weight: 700; }
 .form-grid { display: grid; gap: 16px; }
+.form-hint { margin: -4px 0 0; color: #66758b; font-size: 11px; }
 label { color: #314159; font-size: 12px; font-weight: 700; }
 .optional { float: right; color: #8a98aa; font-size: 10px; font-weight: 500; }
 input, textarea { width: 100%; margin-top: 7px; border: 1px solid #c6e6eb; border-radius: 8px; color: #000b21; background: white; outline: none; transition: .2s; }
@@ -53,10 +54,8 @@ input:focus, textarea:focus { border-color: #002653; box-shadow: 0 0 0 3px rgba(
 .paper-logo { position: absolute; z-index: 1; top: 24px; left: 39px; width: 72px; height: 72px; object-fit: contain; }
 .paper-brand { position: absolute; z-index: 1; top: 35px; right: 39px; text-align: right; font-size: 10px; }
 .paper-brand span { display: block; margin-top: 4px; font-size: 9px; }
-.paper-type { position: absolute; z-index: 2; left: 39px; bottom: 17px; font-size: 8px; font-weight: 700; letter-spacing: .16em; }
 .paper-body { padding: 32px 54px 0; }
-.paper-recipient span { color: #002653; font-size: 8px; font-weight: 800; }
-.paper-recipient h2 { margin: 8px 0; font-size: 19px; }
+.paper-recipient h2 { margin: 0 0 8px; font-size: 19px; }
 .paper-recipient p { margin: 0; color: #002653; font-size: 10px; }
 .paper-recipient::after { content: ''; display: block; width: 102px; height: 2px; margin: 17px 0 20px -3px; background: #002653; }
 .paper-copy { font-size: 10.5px; line-height: 1.35; }

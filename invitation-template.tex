@@ -22,11 +22,10 @@
 \definecolor{LineBlue}{HTML}{C6E6EB}
 
 % Defaults make the shared template directly compilable.
-\providecommand{\RecipientEyebrow}{INVITACIÓN DIRIGIDA A}
-\providecommand{\DocumentType}{I N V I T A C I Ó N \quad I N S T I T U C I O N A L}
 \providecommand{\RecipientName}{INSTITUCIÓN DE EJEMPLO}
 \providecommand{\RecipientRole}{A quien corresponda}
 \providecommand{\Opening}{De nuestra mayor consideración:}
+\providecommand{\ParticipationClosing}{Nos encantaría contar con la participación de su institución.}
 
 \begin{document}
 \begin{tikzpicture}[remember picture,overlay,shift={(current page.south west)},x=1mm,y=1mm]
@@ -50,20 +49,15 @@
     {\fontsize{8}{9}\selectfont\bfseries AWS STUDENT BUILDER GROUP\\[-1pt]
      \fontsize{7}{8}\selectfont\mdseries UPB COCHABAMBA};
   \draw[CyanAccent,line width=1.2pt] (149,274)--(197,274);
-  \node[anchor=south west,text=white] at (13,228)
-    {\fontsize{8}{9}\selectfont\bfseries \DocumentType};
-
   % Recipient block.
-  \node[anchor=north west,text=ElectricBlue] at (18,214)
-    {\fontsize{7.5}{9}\selectfont\bfseries \RecipientEyebrow};
-  \node[anchor=north west,text width=174mm,text=Ink] at (18,207)
+  \node[anchor=north west,text width=174mm,text=Ink] at (18,214)
     {\fontsize{15}{17}\selectfont\bfseries \RecipientName};
-  \node[anchor=north west,text width=174mm,text=Muted] at (18,197)
+  \node[anchor=north west,text width=174mm,text=Muted] at (18,204)
     {\fontsize{9}{11}\selectfont \RecipientRole};
-  \draw[ElectricBlue,line width=.8pt] (18,188)--(52,188);
+  \draw[ElectricBlue,line width=.8pt] (18,195)--(52,195);
 
   % Main message.
-  \node[anchor=north west,text width=174mm,align=justify,text=Ink] at (18,181)
+  \node[anchor=north west,text width=174mm,align=justify,text=Ink] at (18,188)
     {\fontsize{10}{14}\selectfont
      \Opening
 
@@ -76,7 +70,7 @@
      Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el
      ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar
      con estudiantes que comparten el interés por aprender, crear y transformar
-     ideas en proyectos. Nos encantaría contar con la participación de su institución.};
+     ideas en proyectos. \ParticipationClosing};
 
   % Event information card.
   \fill[white,rounded corners=2mm] (18,77) rectangle (192,118);

@@ -32,9 +32,11 @@ export async function parseWorkbook(file: File): Promise<Invitation[]> {
         greeting: read(row, headers, 'saludo', 'greeting'),
       })
     })
-    .filter((invitation) => invitation.institution)
+    .filter((invitation) => invitation.institution || invitation.recipient)
 
-  if (!invitations.length) throw new Error('No se encontraron filas con la columna “institucion”.')
+  if (!invitations.length) {
+    throw new Error('No se encontraron filas con una institución o un destinatario.')
+  }
   return invitations
 }
 
@@ -46,7 +48,8 @@ export async function downloadExcelTemplate(): Promise<void> {
       { value: 'cargo', fontWeight: 'bold', backgroundColor: '#DCE8F5' },
       { value: 'saludo', fontWeight: 'bold', backgroundColor: '#DCE8F5' },
     ],
-    ['Universidad Ejemplo', 'Dra. María Pérez', 'Rectora', 'Estimada Dra. Pérez:'],
+    ['Universidad Ejemplo', '', '', 'De nuestra mayor consideración:'],
+    ['', 'Dra. María Pérez', 'Líder de comunidad', 'Estimada Dra. Pérez:'],
   ]
 
   await writeXlsxFile(data, {

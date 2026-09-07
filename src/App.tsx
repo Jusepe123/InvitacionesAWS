@@ -26,7 +26,9 @@ export default function App() {
 
   async function generate(invitationToUse = invitation, saveHistory = true) {
     const normalized = normalizeInvitation(invitationToUse)
-    if (!normalized.institution) throw new Error('Debes indicar el nombre de la institución.')
+    if (!normalized.recipient && !normalized.institution) {
+      throw new Error('Debes indicar un destinatario o una institución.')
+    }
     const { createInvitationPdf, downloadBlob, pdfFilename } = await import('./lib/pdf')
     const blob = await createInvitationPdf(normalized)
     downloadBlob(blob, pdfFilename(normalized))
@@ -124,15 +126,16 @@ export default function App() {
           </nav>
 
           {tab === 'form' && <div className="form-grid">
-            <label>Institución <input value={invitation.institution} onChange={(event) => update('institution', event.target.value)} placeholder="Universidad o empresa" /></label>
-            <label>Destinatario <span className="optional">Opcional</span><input value={invitation.recipient} onChange={(event) => update('recipient', event.target.value)} placeholder="Ing. Valeria Fernández" /></label>
+            <label>Institución <span className="optional">Opcional para personas</span><input value={invitation.institution} onChange={(event) => update('institution', event.target.value)} placeholder="Universidad o empresa" /></label>
+            <label>Destinatario <span className="optional">Opcional para instituciones</span><input value={invitation.recipient} onChange={(event) => update('recipient', event.target.value)} placeholder="Ing. Valeria Fernández" /></label>
             <label>Cargo <span className="optional">Opcional</span><input value={invitation.role} onChange={(event) => update('role', event.target.value)} placeholder="Directora de Innovación" /></label>
             <label>Saludo <input value={invitation.greeting} onChange={(event) => update('greeting', event.target.value)} placeholder="De nuestra mayor consideración:" /></label>
+            <p className="form-hint">Indica al menos una institución o un destinatario.</p>
           </div>}
 
           {tab === 'markdown' && <div className="markdown-panel"><p>Pega un archivo con metadatos YAML. El texto del evento permanece protegido por la plantilla.</p><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} spellCheck={false} /><button className="secondary" onClick={applyMarkdown}>Aplicar Markdown</button></div>}
 
-          {tab === 'excel' && <div className="excel-panel"><div className="drop-zone" onClick={() => excelInput.current?.click()}><strong>Importar invitaciones desde Excel</strong><span>Columnas: institucion, destinatario, cargo y saludo</span><button className="secondary" type="button">Seleccionar .xlsx</button><input ref={excelInput} type="file" accept=".xlsx" onChange={(event) => void handleExcel(event.target.files?.[0])} hidden /></div><button className="link-button" onClick={() => void handleDownloadExcelTemplate()}>↓ Descargar plantilla de Excel</button></div>}
+          {tab === 'excel' && <div className="excel-panel"><div className="drop-zone" onClick={() => excelInput.current?.click()}><strong>Importar invitaciones desde Excel</strong><span>Columnas: institucion, destinatario, cargo y saludo. Cada fila debe incluir institución o destinatario.</span><button className="secondary" type="button">Seleccionar .xlsx</button><input ref={excelInput} type="file" accept=".xlsx" onChange={(event) => void handleExcel(event.target.files?.[0])} hidden /></div><button className="link-button" onClick={() => void handleDownloadExcelTemplate()}>↓ Descargar plantilla de Excel</button></div>}
 
           {notice && <div className={`notice ${notice.kind}`}>{notice.message}</div>}
           <button className="primary" disabled={busy} onClick={() => void handleGenerate()}>{busy ? 'Generando…' : 'Generar PDF'} <span>→</span></button>
@@ -144,7 +147,7 @@ export default function App() {
 
       <section className="history-section">
         <div className="section-title"><div><span className="eyebrow">EN ESTE DISPOSITIVO</span><h2>Invitaciones recientes</h2></div>{history.length > 0 && <button className="link-button danger" onClick={() => { clearHistory(); setHistory([]) }}>Borrar historial</button>}</div>
-        {history.length === 0 ? <div className="empty-state">Las invitaciones generadas aparecerán aquí para poder recuperar sus datos.</div> : <div className="history-grid">{history.map((entry) => <article key={entry.id}><span>{entry.recipient ? 'PERSONALIZADA' : 'INSTITUCIONAL'}</span><h3>{entry.recipient || entry.institution}</h3>{entry.recipient && <p>{entry.institution}</p>}<time>{new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(entry.createdAt))}</time><div><button onClick={() => restore(entry)}>Editar</button><button onClick={() => void generate(entry, false)}>PDF</button></div></article>)}</div>}
+        {history.length === 0 ? <div className="empty-state">Las invitaciones generadas aparecerán aquí para poder recuperar sus datos.</div> : <div className="history-grid">{history.map((entry) => <article key={entry.id}><span>{entry.recipient ? 'PERSONALIZADA' : 'INSTITUCIONAL'}</span><h3>{entry.recipient || entry.institution}</h3>{entry.recipient && entry.institution && <p>{entry.institution}</p>}<time>{new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(entry.createdAt))}</time><div><button onClick={() => restore(entry)}>Editar</button><button onClick={() => void generate(entry, false)}>PDF</button></div></article>)}</div>}
       </section>
     </main>
   )

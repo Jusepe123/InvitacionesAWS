@@ -60,14 +60,15 @@ function safeName(value: string): string {
 }
 
 export function pdfFilename(invitation: Invitation): string {
-  return `Invitacion-SCD-${safeName(invitation.institution || invitation.recipient || 'Bolivia-2026')}.pdf`
+  return `Invitacion-SCD-${safeName(invitation.recipient || invitation.institution || 'Bolivia-2026')}.pdf`
 }
 
 export async function createInvitationPdf(invitation: Invitation): Promise<Blob> {
+  const personalized = Boolean(invitation.recipient.trim())
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true })
   doc.setProperties({
     title: 'Invitación AWS Student Community Day Bolivia 2026',
-    subject: 'Invitación institucional al SCD Bolivia 2026',
+    subject: 'Invitación al SCD Bolivia 2026',
     author: 'AWS Student Builder Group UPB Cbba',
     creator: 'Generador de invitaciones SCD Bolivia 2026',
   })
@@ -101,34 +102,31 @@ export async function createInvitationPdf(invitation: Invitation): Promise<Blob>
   doc.setLineWidth(0.45)
   doc.line(149, 23, 197, 23)
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(8)
-  doc.text(invitation.recipient ? 'I N V I T A C I Ó N   P E R S O N A L I Z A D A' : 'I N V I T A C I Ó N   I N S T I T U C I O N A L', 13, 67)
-
-  doc.setTextColor(COLORS.blue)
-  doc.setFontSize(7.5)
-  doc.text(invitation.recipient ? 'INVITACIÓN PERSONALIZADA' : 'INVITACIÓN DIRIGIDA A', 18, 87)
   doc.setTextColor(COLORS.ink)
   doc.setFontSize(15)
-  doc.text(invitation.recipient || invitation.institution, 18, 97, { maxWidth: 174 })
+  doc.text(invitation.recipient || invitation.institution, 18, 90, { maxWidth: 174 })
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(COLORS.muted)
   doc.setFontSize(9)
-  const subtitle = invitation.recipient
+  const subtitle = personalized
     ? [invitation.role, invitation.institution].filter(Boolean).join(' · ')
     : 'A quien corresponda'
-  doc.text(subtitle, 18, 106, { maxWidth: 174 })
+  if (subtitle) doc.text(subtitle, 18, 99, { maxWidth: 174 })
   doc.setDrawColor(COLORS.blue)
   doc.setLineWidth(0.3)
-  doc.line(18, 112, 52, 112)
+  doc.line(18, 108, 52, 108)
 
   doc.setTextColor(COLORS.ink)
   doc.setFontSize(10)
-  doc.text(invitation.greeting, 18, 123)
+  doc.text(invitation.greeting, 18, 119)
   const paragraphOne = 'El AWS Student Builder Group UPB Cbba tiene el agrado de invitarle al AWS Student Community Day (SCD) Bolivia 2026, una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.'
-  const paragraphTwo = 'Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. Nos encantaría contar con la participación de su institución.'
+  const participationClosing = personalized
+    ? 'Nos encantaría contar con su participación.'
+    : 'Nos encantaría contar con la participación de su institución.'
+  const paragraphTwo = `Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. ${participationClosing}`
   doc.setFontSize(9.5)
-  doc.text(doc.splitTextToSize(paragraphOne, 174), 18, 132, { lineHeightFactor: 1.35 })
-  doc.text(doc.splitTextToSize(paragraphTwo, 174), 18, 150, { lineHeightFactor: 1.35 })
+  doc.text(doc.splitTextToSize(paragraphOne, 174), 18, 128, { lineHeightFactor: 1.35 })
+  doc.text(doc.splitTextToSize(paragraphTwo, 174), 18, 146, { lineHeightFactor: 1.35 })
 
   doc.setFillColor('#FFFFFF')
   doc.setDrawColor(COLORS.line)

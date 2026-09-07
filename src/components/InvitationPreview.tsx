@@ -9,6 +9,9 @@ export function InvitationPreview({ invitation }: { invitation: Invitation }) {
   const subtitle = personalized
     ? [invitation.role, invitation.institution].filter(Boolean).join(' · ')
     : 'A quien corresponda'
+  const participationClosing = personalized
+    ? 'Nos encantaría contar con su participación.'
+    : 'Nos encantaría contar con la participación de su institución.'
 
   useEffect(() => {
     let active = true
@@ -29,18 +32,16 @@ export function InvitationPreview({ invitation }: { invitation: Invitation }) {
       <header className="paper-hero">
         <img className="paper-logo" src="/assets/logo-white.png" alt="AWS Student Builder Group UPB Cbba" />
         <div className="paper-brand"><strong>AWS STUDENT BUILDER GROUP</strong><span>UPB COCHABAMBA</span></div>
-        <div className="paper-type">I N V I T A C I Ó N&nbsp;&nbsp; {personalized ? 'P E R S O N A L I Z A D A' : 'I N S T I T U C I O N A L'}</div>
       </header>
       <div className="paper-body">
         <section className="paper-recipient">
-          <span>{personalized ? 'INVITACIÓN PERSONALIZADA' : 'INVITACIÓN DIRIGIDA A'}</span>
           <h2>{displayName}</h2>
-          <p>{subtitle}</p>
+          {subtitle && <p>{subtitle}</p>}
         </section>
         <section className="paper-copy">
           <p>{invitation.greeting}</p>
           <p>El <strong>AWS Student Builder Group UPB Cbba</strong> tiene el agrado de invitarle al <strong>AWS Student Community Day (SCD) Bolivia 2026</strong>, una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.</p>
-          <p>Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. Nos encantaría contar con la participación de su institución.</p>
+          <p>Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. {participationClosing}</p>
         </section>
         <section className="event-card">
           <div><small>SÁBADO</small><strong>10 OCT</strong><span>2026</span></div>

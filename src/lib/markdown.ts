@@ -37,7 +37,9 @@ export function fromMarkdown(markdown: string, fallback: Invitation): Invitation
     if (key) result[key] = value
   })
 
-  if (!result.institution.trim()) throw new Error('El Markdown debe incluir “institucion”.')
+  if (!result.institution.trim() && !result.recipient.trim()) {
+    throw new Error('El Markdown debe incluir “institucion” o “destinatario”.')
+  }
   return normalizeInvitation(result)
 }
 
