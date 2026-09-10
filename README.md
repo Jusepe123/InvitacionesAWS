@@ -24,6 +24,30 @@ Una invitación se considera personal cuando incluye destinatario, aunque no ten
 
 La carga masiva descarga un ZIP con un PDF por invitación. El historial se guarda únicamente en `localStorage` del dispositivo.
 
+## Integración con agentes (Hermes)
+
+La aplicación tiene un contrato URL para que un agente de navegador pueda cargar datos sin localizar controles por posición. Todos los valores deben ir codificados con `encodeURIComponent`.
+
+Para una invitación:
+
+```text
+https://main.d3k95upxnl3mtv.amplifyapp.com/?institution=Universidad%20Ejemplo&recipient=Dra.%20Mar%C3%ADa%20P%C3%A9rez&role=Directora%20de%20Innovaci%C3%B3n&generate=1
+```
+
+También acepta JSON en `input`, como objeto único o como arreglo de hasta 100 objetos. Los nombres preferidos son `institution`, `recipient`, `role` y `greeting`; también se aceptan sus equivalentes en español.
+
+```js
+const input = encodeURIComponent(JSON.stringify([
+  { institution: 'Universidad Ejemplo', recipient: 'Dra. María Pérez', role: 'Directora de Innovación' },
+  { institution: 'Empresa Ejemplo' },
+]))
+const url = `https://main.d3k95upxnl3mtv.amplifyapp.com/?input=${input}&generate=1`
+```
+
+`generate=1` descarga automáticamente un PDF para una invitación o un ZIP para un lote. Sin `generate=1`, los datos se cargan en la vista previa para que el agente pueda revisarlos antes de pulsar `button[data-agent-action="generate-pdf"]`. Hermes puede esperar `[data-agent-status]` y comprobar `main[data-agent-ready="true"]` para confirmar el resultado.
+
+Los datos incluidos en la URL pueden quedar registrados en el historial del navegador y en logs del agente; para datos personales sensibles, usar la carga local de Excel o Markdown.
+
 ## Muestras LaTeX
 
 La plantilla de referencia está en `invitation-template.tex`. Para reconstruir las variantes visuales en `samples/`, instala MiKTeX y Poppler y ejecuta:
