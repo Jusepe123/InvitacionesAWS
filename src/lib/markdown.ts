@@ -10,6 +10,9 @@ const KEY_MAP: Record<string, keyof Invitation> = {
   role: 'role',
   saludo: 'greeting',
   greeting: 'greeting',
+  cuerpo: 'body',
+  cuerpo_personalizado: 'body',
+  body: 'body',
 }
 
 export function toMarkdown(invitation: Invitation): string {
@@ -19,6 +22,7 @@ export function toMarkdown(invitation: Invitation): string {
     `destinatario: ${invitation.recipient}`,
     `cargo: ${invitation.role}`,
     `saludo: ${invitation.greeting}`,
+    `cuerpo: ${invitation.body.replace(/\r?\n/g, '\\n')}`,
     '---',
   ].join('\n')
 }
@@ -32,8 +36,9 @@ export function fromMarkdown(markdown: string, fallback: Invitation): Invitation
     const separator = line.indexOf(':')
     if (separator < 0) return
     const rawKey = line.slice(0, separator).trim().toLowerCase()
-    const value = line.slice(separator + 1).trim().replace(/^['"]|['"]$/g, '')
     const key = KEY_MAP[rawKey]
+    const rawValue = line.slice(separator + 1).trim().replace(/^['"]|['"]$/g, '')
+    const value = key === 'body' ? rawValue.replace(/\\n/g, '\n') : rawValue
     if (key) result[key] = value
   })
 
@@ -53,5 +58,6 @@ export function normalizeInvitation(invitation: Invitation): Invitation {
     greeting:
       invitation.greeting.trim() ||
       (recipient ? `Estimada/o ${recipient}:` : 'De nuestra mayor consideración:'),
+    body: invitation.body.trim(),
   }
 }

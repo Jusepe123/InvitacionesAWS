@@ -176,18 +176,23 @@ export async function createInvitationPdf(invitation: Invitation): Promise<Blob>
   doc.setTextColor(COLORS.ink)
   doc.setFontSize(10)
   doc.text(invitation.greeting, 18, 119)
-  const paragraphOne = 'El AWS Student Builder Group UPB Cbba tiene el agrado de invitarle al AWS Student Community Day (SCD) Bolivia 2026, el primer evento internacional de la comunidad estudiantil de Amazon en Bolivia, será una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.'
-  const participationClosing = personalized
-    ? 'Nos encantaría contar con su participación.'
-    : 'Nos encantaría contar con la participación de su institución.'
-  const paragraphTwo = `Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. ${participationClosing}`
+  const defaultBody = [
+    'El AWS Student Builder Group UPB Cbba tiene el agrado de invitarle al AWS Student Community Day (SCD) Bolivia 2026, el primer evento internacional de la comunidad estudiantil de Amazon en Bolivia, será una jornada creada para reunir a estudiantes interesados en tecnología y computación en la nube.',
+    `Durante la jornada, los asistentes podrán ampliar su perspectiva sobre el ecosistema tecnológico, descubrir nuevas posibilidades de la nube y conectar con estudiantes que comparten el interés por aprender, crear y transformar ideas en proyectos. ${personalized ? 'Nos encantaría contar con su participación.' : 'Nos encantaría contar con la participación de su institución.'}`,
+  ]
+  const bodyParagraphs = invitation.body.trim() ? invitation.body.trim().split(/\r?\n\s*\r?\n/) : defaultBody
   doc.setFontSize(9.5)
   const lineHeight = 4.5
-  const firstParagraphEnd = drawRichText(doc, paragraphOne, [
-    'AWS Student Builder Group UPB Cbba',
-    'AWS Student Community Day (SCD) Bolivia 2026',
-  ], 18, 128, 174, lineHeight)
-  drawRichText(doc, paragraphTwo, [], 18, Math.max(146, firstParagraphEnd), 174, lineHeight)
+  let bodyEnd = 128
+  for (const paragraph of bodyParagraphs) {
+    bodyEnd = drawRichText(doc, paragraph, [
+      'AWS Student Builder Group UPB Cbba',
+      'AWS Student Community Day (SCD) Bolivia 2026',
+    ], 18, bodyEnd, 174, lineHeight)
+    bodyEnd += 1.5
+  }
+  if (bodyEnd > 177) throw new Error('El cuerpo personalizado es demasiado largo para una página.')
+
 
   doc.setFillColor('#FFFFFF')
   doc.setDrawColor(COLORS.line)

@@ -3,6 +3,7 @@ export type Invitation = {
   recipient: string
   role: string
   greeting: string
+  body: string
 }
 
 export type HistoryEntry = Invitation & {
@@ -16,4 +17,5 @@ export const EMPTY_INVITATION: Invitation = {
   recipient: '',
   role: '',
   greeting: 'De nuestra mayor consideración:',
+  body: '',
 }

@@ -25,6 +25,7 @@ function toInvitation(source: unknown): Invitation {
     recipient: value(item, 'recipient', 'destinatario', 'name', 'nombre'),
     role: value(item, 'role', 'cargo'),
     greeting: value(item, 'greeting', 'saludo'),
+    body: value(item, 'body', 'cuerpo', 'cuerpo_personalizado'),
   })
 }
 
@@ -48,7 +49,7 @@ export function readAgentRequest(search: string): AgentRequest | null {
     }
   }
 
-  const hasSimpleInput = ['institution', 'institucion', 'recipient', 'destinatario', 'role', 'cargo', 'greeting', 'saludo'].some((key) => params.has(key))
+  const hasSimpleInput = ['institution', 'institucion', 'recipient', 'destinatario', 'role', 'cargo', 'greeting', 'saludo', 'body', 'cuerpo', 'cuerpo_personalizado'].some((key) => params.has(key))
   if (!hasSimpleInput) return null
   try {
     const invitation = toInvitation({
@@ -56,6 +57,7 @@ export function readAgentRequest(search: string): AgentRequest | null {
       recipient: params.get('recipient') ?? params.get('destinatario'),
       role: params.get('role') ?? params.get('cargo'),
       greeting: params.get('greeting') ?? params.get('saludo'),
+      body: params.get('body') ?? params.get('cuerpo') ?? params.get('cuerpo_personalizado'),
     })
     if (!invitation.institution && !invitation.recipient) throw new Error('La URL debe incluir institution o recipient.')
     return { invitations: [invitation], autoGenerate }

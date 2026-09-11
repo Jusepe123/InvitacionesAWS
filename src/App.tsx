@@ -136,7 +136,7 @@ export default function App() {
     }
   }
   function restore(entry: HistoryEntry) {
-    const next: Invitation = { institution: entry.institution, recipient: entry.recipient, role: entry.role, greeting: entry.greeting }
+    const next: Invitation = { institution: entry.institution, recipient: entry.recipient, role: entry.role, greeting: entry.greeting, body: entry.body }
     setInvitation(next)
     setMarkdown(entry.markdown)
     setTab('form')
@@ -165,12 +165,13 @@ export default function App() {
             <label>Destinatario <span className="optional">Opcional para instituciones</span><input id="recipient" data-agent-field="recipient" value={invitation.recipient} onChange={(event) => update('recipient', event.target.value)} placeholder="Ing. Valeria Fernández" /></label>
             <label>Cargo <span className="optional">Opcional</span><input id="role" data-agent-field="role" value={invitation.role} onChange={(event) => update('role', event.target.value)} placeholder="Directora de Innovación" /></label>
             <label>Saludo <input id="greeting" data-agent-field="greeting" value={invitation.greeting} onChange={(event) => update('greeting', event.target.value)} placeholder="De nuestra mayor consideración:" /></label>
+            <label className="body-field">Cuerpo personalizado <span className="optional">Opcional; un párrafo por línea en blanco</span><textarea id="body" data-agent-field="body" value={invitation.body} onChange={(event) => update('body', event.target.value)} placeholder="Escribe aquí el texto personalizado de la invitación." rows={6} /></label>
             <p className="form-hint">Indica al menos una institución o un destinatario.</p>
           </div>}
 
-          {tab === 'markdown' && <div className="markdown-panel"><p>Pega un archivo con metadatos YAML. El texto del evento permanece protegido por la plantilla.</p><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} spellCheck={false} /><button className="secondary" onClick={applyMarkdown}>Aplicar Markdown</button></div>}
+          {tab === 'markdown' && <div className="markdown-panel"><p>Pega un archivo con metadatos YAML. Usa <code>cuerpo:</code> para reemplazar el texto del evento; separa párrafos con <code>\\n</code>.</p><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} spellCheck={false} /><button className="secondary" onClick={applyMarkdown}>Aplicar Markdown</button></div>}
 
-          {tab === 'excel' && <div className="excel-panel"><div className="drop-zone" onClick={() => excelInput.current?.click()}><strong>Importar invitaciones desde Excel</strong><span>Columnas: institucion, destinatario, cargo y saludo. Cada fila debe incluir institución o destinatario.</span><button className="secondary" type="button">Seleccionar .xlsx</button><input ref={excelInput} type="file" accept=".xlsx" onChange={(event) => void handleExcel(event.target.files?.[0])} hidden /></div><button className="link-button" onClick={() => void handleDownloadExcelTemplate()}>↓ Descargar plantilla de Excel</button></div>}
+          {tab === 'excel' && <div className="excel-panel"><div className="drop-zone" onClick={() => excelInput.current?.click()}><strong>Importar invitaciones desde Excel</strong><span>Columnas: institucion, destinatario, cargo, saludo y cuerpo. Cada fila debe incluir institución o destinatario.</span><button className="secondary" type="button">Seleccionar .xlsx</button><input ref={excelInput} type="file" accept=".xlsx" onChange={(event) => void handleExcel(event.target.files?.[0])} hidden /></div><button className="link-button" onClick={() => void handleDownloadExcelTemplate()}>↓ Descargar plantilla de Excel</button></div>}
 
           {notice && <div className={`notice ${notice.kind}`} role="status" aria-live="polite" data-agent-status>{notice.message}</div>}
           <button className="primary" data-agent-action="generate-pdf" disabled={busy} onClick={() => void handleGenerate()}>{busy ? 'Generando…' : 'Generar PDF'} <span>→</span></button>

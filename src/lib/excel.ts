@@ -30,6 +30,7 @@ export async function parseWorkbook(file: File): Promise<Invitation[]> {
         recipient,
         role: read(row, headers, 'cargo', 'role'),
         greeting: read(row, headers, 'saludo', 'greeting'),
+        body: read(row, headers, 'cuerpo', 'cuerpo personalizado', 'body'),
       })
     })
     .filter((invitation) => invitation.institution || invitation.recipient)
@@ -47,12 +48,13 @@ export async function downloadExcelTemplate(): Promise<void> {
       { value: 'destinatario', fontWeight: 'bold', backgroundColor: '#DCE8F5' },
       { value: 'cargo', fontWeight: 'bold', backgroundColor: '#DCE8F5' },
       { value: 'saludo', fontWeight: 'bold', backgroundColor: '#DCE8F5' },
+      { value: 'cuerpo', fontWeight: 'bold', backgroundColor: '#DCE8F5' },
     ],
-    ['Universidad Ejemplo', '', '', 'De nuestra mayor consideración:'],
-    ['', 'Dra. María Pérez', 'Líder de comunidad', 'Estimada Dra. Pérez:'],
+    ['Universidad Ejemplo', '', '', 'De nuestra mayor consideración:', ''],
+    ['', 'Dra. María Pérez', 'Líder de comunidad', 'Estimada Dra. Pérez:', ''],
   ]
 
   await writeXlsxFile(data, {
-    columns: [{ width: 30 }, { width: 25 }, { width: 22 }, { width: 28 }],
+    columns: [{ width: 30 }, { width: 25 }, { width: 22 }, { width: 28 }, { width: 60 }],
   }).toFile('plantilla-invitaciones-scd.xlsx')
 }

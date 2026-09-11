@@ -24,6 +24,8 @@ h2 { margin: 6px 0 0; color: #000b21; font-size: 22px; }
 .tabs button.active { color: #021a46; background: white; box-shadow: 0 2px 8px rgba(0,38,83,.12); font-weight: 700; }
 .form-grid { display: grid; gap: 16px; }
 .form-hint { margin: -4px 0 0; color: #66758b; font-size: 11px; }
+.body-field { display: block; }
+.body-field textarea { min-height: 140px; padding: 12px; resize: vertical; line-height: 1.45; }
 label { color: #314159; font-size: 12px; font-weight: 700; }
 .optional { float: right; color: #8a98aa; font-size: 10px; font-weight: 500; }
 input, textarea { width: 100%; margin-top: 7px; border: 1px solid #c6e6eb; border-radius: 8px; color: #000b21; background: white; outline: none; transition: .2s; }

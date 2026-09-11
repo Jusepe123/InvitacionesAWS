@@ -16,9 +16,9 @@ npm run check
 
 ## Entradas admitidas
 
-- Formulario: institución o destinatario; para invitaciones personales la institución y el cargo son opcionales.
-- Markdown: metadatos `institucion`, `destinatario`, `cargo` y `saludo`.
-- Excel: archivo `.xlsx` de hasta 5 MB y 100 filas. La aplicación ofrece una plantilla descargable con las columnas correctas.
+- Formulario: institución o destinatario; para invitaciones personales la institución y el cargo son opcionales. El campo `Cuerpo personalizado` reemplaza el texto predeterminado del evento; separa los párrafos con una línea en blanco.
+- Markdown: metadatos `institucion`, `destinatario`, `cargo`, `saludo` y `cuerpo`. En `cuerpo`, usa `\\n` para representar saltos de párrafo.
+- Excel: archivo `.xlsx` de hasta 5 MB y 100 filas. La aplicación ofrece una plantilla descargable con las columnas correctas, incluida `cuerpo`.
 
 Una invitación se considera personal cuando incluye destinatario, aunque no tenga institución. Si no incluye destinatario, debe indicar una institución.
 

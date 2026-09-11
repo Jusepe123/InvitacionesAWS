@@ -7,7 +7,7 @@ const HISTORY_LIMIT = 50
 function isHistoryEntry(value: unknown): value is HistoryEntry {
   if (!value || typeof value !== 'object') return false
   const item = value as Partial<HistoryEntry>
-  return ['id', 'createdAt', 'markdown', 'institution', 'recipient', 'role', 'greeting']
+  return ['id', 'createdAt', 'markdown', 'institution', 'recipient', 'role', 'greeting', 'body']
     .every((key) => typeof item[key as keyof HistoryEntry] === 'string')
 }
 
